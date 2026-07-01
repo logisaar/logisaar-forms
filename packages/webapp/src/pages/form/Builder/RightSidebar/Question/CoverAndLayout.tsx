@@ -15,6 +15,7 @@ export default function CoverAndLayout() {
   const { t } = useTranslation()
   const { state, dispatch } = useStoreContext()
   const field = state.currentField!
+  const isMediaUrlValid = helper.isURL(field.layout?.mediaUrl) || field.layout?.mediaUrl?.startsWith('/')
 
   const handleChange = useCallback(
     (key: string, value: any) => {
@@ -72,11 +73,11 @@ export default function CoverAndLayout() {
             onChange={value => handleChange('mediaUrl', value)}
           >
             <Button.Ghost size="sm">
-              {t(helper.isURL(field.layout?.mediaUrl) ? 'components.change' : 'components.add')}
+              {t(isMediaUrlValid ? 'components.change' : 'components.add')}
             </Button.Ghost>
           </ImagePicker>
 
-          {helper.isURL(field.layout?.mediaUrl) && (
+          {isMediaUrlValid && (
             <Button.Ghost size="sm" onClick={handleRemove}>
               {t('components.remove')}
             </Button.Ghost>
@@ -84,7 +85,7 @@ export default function CoverAndLayout() {
         </div>
       </div>
 
-      {helper.isURL(field.layout?.mediaUrl) && (
+      {isMediaUrlValid && (
         <>
           {field.layout?.align !== FieldLayoutAlignEnum.INLINE && (
             <div className="border-accent-light mt-4 border-t pt-4">

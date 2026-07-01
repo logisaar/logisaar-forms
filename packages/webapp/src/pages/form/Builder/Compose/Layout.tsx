@@ -27,7 +27,8 @@ function filterStyle(brightness?: number) {
 }
 
 export const Layout: FC<LayoutProps> = ({ className, layout, ...restProps }) => {
-  if (!helper.isURL(layout?.mediaUrl)) {
+  const isMediaUrlValid = helper.isURL(layout?.mediaUrl) || layout?.mediaUrl?.startsWith('/')
+  if (!isMediaUrlValid) {
     return null
   }
 

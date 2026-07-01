@@ -158,7 +158,7 @@ export const Block: FC<BlockProps> = ({
   const descriptionRef = useRef<HTMLDivElement>(undefined)
 
   const isCoverShow = helper.isValid(field.layout?.mediaUrl)
-  const isImageCover = helper.isURL(field.layout?.mediaUrl)
+  const isImageCover = helper.isURL(field.layout?.mediaUrl) || field.layout?.mediaUrl?.startsWith('/')
 
   function handleTitleChange(title: string) {
     dispatch({
