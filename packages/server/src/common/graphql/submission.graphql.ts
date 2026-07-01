@@ -54,7 +54,7 @@ export class SubmissionAnswersInput extends FormDetailInput {
   @Field({ nullable: true, defaultValue: 30 })
   @IsOptional()
   @IsNumber()
-  @Max(30)
+  @Max(10000)
   @Min(10)
   limit?: number
 }
@@ -89,7 +89,7 @@ export class SubmissionsInput extends FormDetailInput {
 
   @Field({ nullable: true, defaultValue: 30 })
   @IsOptional()
-  @Max(30)
+  @Max(10000)
   @Min(10)
   limit?: number
 }

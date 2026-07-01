@@ -31,11 +31,12 @@ const Background: FC<BackgroundProps> = ({
   const { width, height } = resize
 
   const src = useMemo(() => {
-    if (helper.isURL(rawSrc) && (helper.isNumber(width) || helper.isNumber(height))) {
+    if (isValidImageSrc(rawSrc as string) && (helper.isNumber(width) || helper.isNumber(height))) {
+      const absoluteUrl = isURL(rawSrc as string) ? rawSrc as string : `${window.location.origin}${rawSrc}`
       return getDecoratedURL(
         '/api/image',
         removeObjectNil({
-          url: rawSrc as string,
+          url: absoluteUrl as string,
           w: width,
           h: height
         })
@@ -45,7 +46,7 @@ const Background: FC<BackgroundProps> = ({
     return rawSrc
   }, [rawSrc, height, width])
 
-  const isImage = useMemo(() => helper.isURL(src), [src])
+  const isImage = useMemo(() => isValidImageSrc(src), [src])
 
   return (
     <Tag
@@ -62,6 +63,10 @@ const Background: FC<BackgroundProps> = ({
 }
 
 const isURL = (url: string) => /^https?:\/\//i.test(url)
+const isValidImageSrc = (src?: string) => {
+  if (!src) return false
+  return isURL(src) || src.startsWith('/') || src.startsWith('data:')
+}
 
 const ImageComponent: FC<ImageProps> = ({
   className,
@@ -75,15 +80,16 @@ const ImageComponent: FC<ImageProps> = ({
   const { width, height } = resize
 
   const src = useMemo(() => {
-    if (!isURL(rawSrc as string)) {
+    if (!isValidImageSrc(rawSrc as string)) {
       return
     }
 
     if (helper.isNumber(width) || helper.isNumber(height)) {
+      const absoluteUrl = isURL(rawSrc as string) ? rawSrc as string : `${window.location.origin}${rawSrc}`
       return getDecoratedURL(
         '/api/image',
         removeObjectNil({
-          url: rawSrc as string,
+          url: absoluteUrl,
           w: width,
           h: height
         })
