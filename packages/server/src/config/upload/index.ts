@@ -35,7 +35,6 @@ export function getMulterStorage() {
   ) {
     return multerS3({
       s3: getS3Client(),
-      acl: 'public-read',
       bucket: S3_BUCKET,
       metadata: (req: any, file: any, cb: any) => {
         cb(null, { fieldName: file.fieldname })

@@ -65,8 +65,7 @@ export class StorageService {
           Bucket: S3_BUCKET,
           Key: key,
           Body: file,
-          ContentType: mimeType,
-          ACL: 'public-read'
+          ContentType: mimeType
         })
       )
 

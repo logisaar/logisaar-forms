@@ -60,7 +60,14 @@ export class Uploader {
   }
 
   async uploadFile(field: UploaderField): Promise<Record<string, FileUploadValue | string>> {
-    const { url } = await UploadService.upload(field.value as File, {
+    const file = field.value as File
+
+    const maxMb = (this.form as any).maxUploadSizeMb
+    if (maxMb && file && file.size > maxMb * 1024 * 1024) {
+      throw new Error(`File exceeds the ${maxMb}MB limit set for this form`)
+    }
+
+    const { url } = await UploadService.upload(file, {
       fieldId: field.id,
       formId: this.form.id,
       openToken: this.openToken

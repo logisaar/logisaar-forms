@@ -1465,6 +1465,8 @@ export const PUBLIC_FORM_GQL = gql`
       suspended
       isDraft
       status
+      storageProvider
+      maxUploadSizeMb
       integrations
     }
   }

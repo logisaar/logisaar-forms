@@ -374,7 +374,9 @@ export class FormService {
       'hiddenFields',
       'logics',
       'variables',
-      'themeSettings'
+      'themeSettings',
+      'storageProvider',
+      'maxUploadSizeMb'
     ])
 
     //!!! Do not disclose form password to the front end
