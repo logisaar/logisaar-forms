@@ -97,22 +97,34 @@ const DateRangeItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) 
 }
 
 const FileUploadItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) => {
-  if (answer.kind !== field.kind || !helper.isObject(answer.value)) {
+  if (answer.kind !== field.kind) {
     return null
   }
 
-  const filename = encodeURIComponent(answer.value.filename)
-  const downloadUrl = `${answer.value.cdnUrlPrefix}/${answer.value.cdnKey}?attname=${filename}`
-  const fileUrl = `${answer.value.cdnUrlPrefix}/${answer.value.cdnKey}`
-  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(answer.value.filename || '')
+  let filename = 'file'
+  let fileUrl = ''
+  let downloadUrl = ''
 
+  if (helper.isObject(answer.value)) {
+    filename = answer.value.filename || 'file'
+    fileUrl = `${answer.value.cdnUrlPrefix}/${answer.value.cdnKey}`
+    downloadUrl = `${fileUrl}?attname=${encodeURIComponent(filename)}`
+  } else if (helper.isString(answer.value)) {
+    fileUrl = answer.value
+    filename = fileUrl.split('/').pop() || 'file'
+    downloadUrl = fileUrl
+  } else {
+    return null
+  }
+
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filename || '')
   const [lightboxVisible, setLightboxVisible] = useState(false)
 
   if (isTableCell) {
     return (
       <div className="flex gap-1">
         <IconFile className="text-secondary h-5 w-5" />
-        <div className="flex-1 truncate">{answer.value.filename}</div>
+        <div className="flex-1 truncate">{filename}</div>
       </div>
     )
   }
@@ -122,7 +134,7 @@ const FileUploadItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell })
       <div className="space-y-2">
         <img
           src={fileUrl}
-          alt={answer.value.filename}
+          alt={filename}
           className="max-h-[90px] max-w-[120px] cursor-pointer rounded-lg object-cover shadow-sm hover:opacity-90 transition-opacity"
           onClick={() => setLightboxVisible(true)}
         />
@@ -137,7 +149,7 @@ const FileUploadItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell })
           </a>
           <a
             href={downloadUrl}
-            download={answer.value.filename}
+            download={filename}
             className="text-secondary font-medium hover:text-primary hover:underline"
           >
             Download
@@ -160,7 +172,7 @@ const FileUploadItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell })
       rel="noreferrer"
     >
       <IconFile className="text-secondary h-5 w-5" />
-      <div className="flex-1 whitespace-nowrap">{answer.value.filename}</div>
+      <div className="flex-1 whitespace-nowrap">{filename}</div>
     </a>
   )
 }

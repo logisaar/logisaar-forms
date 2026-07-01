@@ -6,7 +6,7 @@ import {
   STATEMENT_FIELD_KINDS
 } from '@heyform-inc/shared-types-enums'
 import { Injectable } from '@nestjs/common'
-import { parseAsync } from 'json2csv'
+import { parse } from 'json2csv'
 
 import { htmlUtils, parsePlainAnswer } from '@heyform-inc/answer-utils'
 import { helper, unixDate } from '@heyform-inc/utils'
@@ -70,7 +70,7 @@ export class ExportFileService {
       records.push(record)
     }
 
-    return parseAsync(records, {
+    return parse(records, {
       fields
     })
   }
