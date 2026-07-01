@@ -8,6 +8,7 @@ import {
 import { Injectable } from '@nestjs/common'
 import { parse } from 'json2csv'
 
+import { APP_HOMEPAGE_URL } from '@environments'
 import { htmlUtils, parsePlainAnswer } from '@heyform-inc/answer-utils'
 import { helper, unixDate } from '@heyform-inc/utils'
 import { SubmissionModel } from '@model'
@@ -90,7 +91,8 @@ export class ExportFileService {
             ? `${value.cdnUrlPrefix}/${value.cdnKey}`
             : (value.url || '')
         } else if (helper.isString(value)) {
-          result = value
+          const url = value.startsWith('/') ? value : `/${value}`
+          result = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}${url}`
         }
         break
 
