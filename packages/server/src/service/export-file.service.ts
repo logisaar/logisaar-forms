@@ -32,7 +32,7 @@ export class ExportFileService {
         if (helper.isArray(title)) {
           title = htmlUtils.serialize(title)
         }
-        title = htmlUtils.plain(title || '')
+        title = htmlUtils.plain(title || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim()
         return {
           ...field,
           title
@@ -42,7 +42,7 @@ export class ExportFileService {
     const fields: string[] = [
       FIELD_ID_KEY,
       ...selectedFormFields.map(field => field.title),
-      ...(selectedHiddenFields || []).map(hiddenField => hiddenField.name),
+      ...(selectedHiddenFields || []).map(hiddenField => hiddenField.name.replace(/\u00a0/g, ' ').trim()),
       START_DATE_KEY,
       SUBMIT_DATE_KEY
     ]
@@ -69,7 +69,7 @@ export class ExportFileService {
           hiddenField => hiddenField.id === selectedHiddenField.id
         )?.value
 
-        record[selectedHiddenField.name] = hiddenFieldValue
+        record[selectedHiddenField.name.replace(/\u00a0/g, ' ').trim()] = hiddenFieldValue
       }
 
       record[START_DATE_KEY] = submission.startAt ? unixDate(submission.startAt!).toISOString() : ''
@@ -78,9 +78,11 @@ export class ExportFileService {
       records.push(record)
     }
 
-    return parse(records, {
+    const csvContent = parse(records, {
       fields
     })
+
+    return `\ufeff${csvContent}`
   }
 
   private parseAnswer(answer: Answer): string {
