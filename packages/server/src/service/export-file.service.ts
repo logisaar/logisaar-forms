@@ -27,10 +27,17 @@ export class ExportFileService {
     const records: Record<string, any>[] = []
     const selectedFormFields = (formFields || [])
       .filter(field => !STATEMENT_FIELD_KINDS.includes(field.kind))
-      .map(field => ({
-        ...field,
-        title: helper.isArray(field.title) ? htmlUtils.serialize(field.title) : field.title
-      }))
+      .map(field => {
+        let title = field.title
+        if (helper.isArray(title)) {
+          title = htmlUtils.serialize(title)
+        }
+        title = htmlUtils.plain(title || '')
+        return {
+          ...field,
+          title
+        }
+      })
 
     const fields: string[] = [
       FIELD_ID_KEY,
@@ -91,8 +98,16 @@ export class ExportFileService {
             ? `${value.cdnUrlPrefix}/${value.cdnKey}`
             : (value.url || '')
         } else if (helper.isString(value)) {
-          const url = value.startsWith('/') ? value : `/${value}`
-          result = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}${url}`
+          const pathParts = value.split('/')
+          const filename = pathParts.pop() || ''
+          const formId = pathParts.pop() || ''
+
+          if (value.startsWith('/static/upload/') && formId && filename && formId !== 'global') {
+            result = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}/view/file/${formId}/${filename}`
+          } else {
+            const url = value.startsWith('/') ? value : `/${value}`
+            result = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}${url}`
+          }
         }
         break
 
