@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get, Query, Res } from '@nestjs/common'
+import { Controller, Get, Query, Res } from '@nestjs/common'
 import { Response } from 'express'
 
 import { Auth, FormGuard } from '@decorator'
