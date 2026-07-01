@@ -27,7 +27,10 @@ export function getBrightnessStyle(brightness: number) {
 
 const ImageBrightness: FC<ImageBrightnessProps> = ({ imageURL, value, onChange }) => {
   const { t } = useTranslation()
-  const isImage = useMemo(() => helper.isURL(imageURL), [imageURL])
+  const isImage = useMemo(
+    () => helper.isURL(imageURL) || imageURL?.startsWith('/'),
+    [imageURL]
+  )
 
   function handleChange(newValue: number) {
     onChange?.(newValue)
