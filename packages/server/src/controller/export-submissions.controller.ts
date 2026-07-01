@@ -22,25 +22,31 @@ export class ExportSubmissionsController {
     @Query() input: ExportSubmissionsDto,
     @Res() res: Response
   ): Promise<void> {
-    const form = await this.formService.findById(input.formId)
-    if (!form) {
-      throw new BadRequestException('The form does not exist')
+    try {
+      const form = await this.formService.findById(input.formId)
+      if (!form) {
+        res.status(400).json({ message: 'The form does not exist' })
+        return
+      }
+
+      const submissions = await this.submissionService.findAllByForm(input.formId)
+      if (submissions.length < 1) {
+        res.status(400).json({ message: 'The submissions do not exist' })
+        return
+      }
+
+      const data = await this.exportFileService.csv(
+        flattenFields(form.fields),
+        form.hiddenFields,
+        submissions
+      )
+      const dateStr = date().format('YYYY-MM-DD')
+      const filename = `${encodeURIComponent(form.name)}-${dateStr}.csv`
+
+      res.header('Content-Disposition', `attachment; filename="${filename}"`)
+      res.send(data)
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || 'Internal server error' })
     }
-
-    const submissions = await this.submissionService.findAllByForm(input.formId)
-    if (submissions.length < 1) {
-      throw new BadRequestException('The submissions does not exist')
-    }
-
-    const data = await this.exportFileService.csv(
-      flattenFields(form.fields),
-      form.hiddenFields,
-      submissions
-    )
-    const dateStr = date().format('YYYY-MM-DD')
-    const filename = `${encodeURIComponent(form.name)}-${dateStr}.csv`
-
-    res.header('Content-Disposition', `attachment; filename="${filename}"`)
-    res.send(data)
   }
 }

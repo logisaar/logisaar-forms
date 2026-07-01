@@ -24,7 +24,7 @@ export class ExportFileService {
     submissions: SubmissionModel[]
   ): Promise<string> {
     const records: Record<string, any>[] = []
-    const selectedFormFields = formFields
+    const selectedFormFields = (formFields || [])
       .filter(field => !STATEMENT_FIELD_KINDS.includes(field.kind))
       .map(field => ({
         ...field,
@@ -34,7 +34,7 @@ export class ExportFileService {
     const fields: string[] = [
       FIELD_ID_KEY,
       ...selectedFormFields.map(field => field.title),
-      ...selectedHiddenFields.map(hiddenField => hiddenField.name),
+      ...(selectedHiddenFields || []).map(hiddenField => hiddenField.name),
       START_DATE_KEY,
       SUBMIT_DATE_KEY
     ]
@@ -56,7 +56,7 @@ export class ExportFileService {
         record[field.title] = answer
       }
 
-      for (const selectedHiddenField of selectedHiddenFields) {
+      for (const selectedHiddenField of selectedHiddenFields || []) {
         const hiddenFieldValue = submission.hiddenFields.find(
           hiddenField => hiddenField.id === selectedHiddenField.id
         )?.value
