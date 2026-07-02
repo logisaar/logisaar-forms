@@ -25,7 +25,7 @@ export const PhoneNumber: FC<BlockProps> = ({ field, ...restProps }) => {
   const [isWhatsappSame, setIsWhatsappSame] = useState(initialIsWhatsappSame)
 
   function getValues(values: any) {
-    if (field.properties?.allowWhatsapp) {
+    if ((field.properties as any)?.allowWhatsapp) {
       return {
         phone: values.phone,
         isWhatsappSame: isWhatsappSame,
@@ -36,7 +36,7 @@ export const PhoneNumber: FC<BlockProps> = ({ field, ...restProps }) => {
   }
 
   const initialValues = useMemo(() => {
-    if (field.properties?.allowWhatsapp) {
+    if ((field.properties as any)?.allowWhatsapp) {
       return {
         phone: initialPhone,
         whatsapp: initialWhatsapp
@@ -45,7 +45,7 @@ export const PhoneNumber: FC<BlockProps> = ({ field, ...restProps }) => {
     return {
       input: initialVal
     }
-  }, [field.properties?.allowWhatsapp, initialPhone, initialWhatsapp, initialVal])
+  }, [(field.properties as any)?.allowWhatsapp, initialPhone, initialWhatsapp, initialVal])
 
   return (
     <Block
@@ -61,7 +61,7 @@ export const PhoneNumber: FC<BlockProps> = ({ field, ...restProps }) => {
         field={field}
         getValues={getValues}
       >
-        {!field.properties?.allowWhatsapp ? (
+        {!((field.properties as any)?.allowWhatsapp) ? (
           <FormField
             name="input"
             rules={[
@@ -103,7 +103,7 @@ export const PhoneNumber: FC<BlockProps> = ({ field, ...restProps }) => {
                           return resolve()
                         }
 
-                        if (isValidPhoneNumber(value)) {
+                        if (helper.isString(value) && isValidPhoneNumber(value)) {
                           resolve()
                         } else {
                           reject(rule.message)
@@ -168,7 +168,7 @@ export const PhoneNumber: FC<BlockProps> = ({ field, ...restProps }) => {
                               return resolve()
                             }
 
-                            if (isValidPhoneNumber(value)) {
+                            if (helper.isString(value) && isValidPhoneNumber(value)) {
                               resolve()
                             } else {
                               reject(rule.message)

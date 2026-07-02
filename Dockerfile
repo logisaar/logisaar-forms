@@ -18,7 +18,6 @@ RUN pnpm install
 RUN pnpm --filter @heyform-inc/shared-types-enums build
 RUN pnpm --filter @heyform-inc/utils build
 RUN pnpm --filter @heyform-inc/answer-utils build
-RUN pnpm --filter @heyform-inc/form-renderer build
 RUN pnpm build:server
 RUN pnpm build:webapp
 
