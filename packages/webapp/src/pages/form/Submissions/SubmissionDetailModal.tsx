@@ -29,15 +29,134 @@ interface SubmissionDetailProps {
   onClose: () => void
 }
 
+function getPlainAnswerText(field: FormField, answer: any): string {
+  if (!answer || helper.isEmpty(answer.value)) {
+    return ''
+  }
+
+  const val = answer.value
+  switch (field.kind) {
+    case FieldKindEnum.ADDRESS:
+      if (helper.isObject(val)) {
+        return [val.address1, val.address2, val.city, val.state, val.zip].filter(Boolean).join(', ')
+      }
+      break
+
+    case FieldKindEnum.DATE_RANGE:
+      if (helper.isObject(val)) {
+        return [val.start, val.end].filter(Boolean).join(' - ')
+      }
+      break
+
+    case FieldKindEnum.FILE_UPLOAD:
+      if (helper.isObject(val)) {
+        const filename = val.filename || 'file'
+        const fileUrl = `${val.cdnUrlPrefix}/${val.cdnKey}`
+        return `${filename} (${fileUrl})`
+      } else if (helper.isString(val)) {
+        const filename = val.split('/').pop() || 'file'
+        return `${filename} (${val})`
+      }
+      break
+
+    case FieldKindEnum.FULL_NAME:
+      if (helper.isObject(val)) {
+        return [val.firstName, val.lastName].filter(Boolean).join(' ')
+      }
+      break
+
+    case FieldKindEnum.INPUT_TABLE:
+      const columns = (field.properties?.tableColumns || []) as any[]
+      if (Array.isArray(val) && columns.length > 0) {
+        return val.map((row: any) => {
+          if (helper.isObject(row)) {
+            return columns.map(c => row[c.id]).join(', ')
+          }
+          return ''
+        }).filter(Boolean).join(' | ')
+      }
+      break
+
+    case FieldKindEnum.MULTIPLE_CHOICE:
+    case FieldKindEnum.PICTURE_CHOICE:
+      const choices = (field.properties?.choices || []) as any[]
+      if (helper.isObject(val)) {
+        const selected = choices.filter(c => val.value?.includes(c.id)).map(c => c.label)
+        if (val.other) {
+          selected.push(val.other)
+        }
+        return selected.join(', ')
+      }
+      break
+
+    case FieldKindEnum.YES_NO:
+      const yesNoChoices = (field.properties?.choices || []) as any[]
+      const yesNoVal = helper.isObject(val) ? val.value : val
+      const selectedYesNo = yesNoChoices.find(c => c.id === yesNoVal)
+      return selectedYesNo ? selectedYesNo.label : String(yesNoVal)
+
+    case FieldKindEnum.RATING:
+    case FieldKindEnum.OPINION_SCALE:
+      const total = field.properties?.total ?? (field.kind === FieldKindEnum.RATING ? 5 : 10)
+      return `${val}/${total}`
+
+    case FieldKindEnum.PAYMENT:
+      if (helper.isObject(val)) {
+        const amount = val.amount || 0
+        const currencySymbol = CURRENCY_SYMBOLS[val.currency] || val.currency || '$'
+        const amountStr = currencySymbol + Big(amount).div(100).toFixed(2)
+        return `${amountStr} (${val.paymentIntentId ? 'Succeeded' : 'Incomplete'})`
+      }
+      break
+
+    default:
+      return String(val)
+  }
+
+  return ''
+}
+
 const SubmissionItem: FC<SubmissionItemProps> = ({ submission, field }) => {
-  const answer = submission.answers.find(answer => answer.id === field.id)
+  const answer = submission.answers.find(ans => ans.id === field.id)
+  const toast = useToast()
+  const { t } = useTranslation()
+
+  const handleCopyAnswer = () => {
+    if (!answer) return
+    const textToCopy = getPlainAnswerText(field, answer)
+    if (!textToCopy) return
+
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => {
+        toast({
+          title: t('Copied'),
+          message: t('Answer copied to clipboard!')
+        })
+      })
+      .catch(err => {
+        console.error('Failed to copy answer: ', err)
+      })
+  }
 
   return (
-    <div className="space-y-3 pt-4 text-sm/6">
-      <SubmissionHeaderCell
-        className="text-secondary items-start gap-x-2 [&_[data-slot=icon]]:h-5 [&_[data-slot=icon]]:w-5 [&_[data-slot=label]]:text-wrap [&_[data-slot=label]]:text-base/6 [&_[data-slot=label]]:font-medium [&_[data-slot=question-icon]]:h-6 [&_[data-slot=question-icon]]:w-6"
-        field={field}
-      />
+    <div className="group space-y-3 pt-4 text-sm/6">
+      <div className="flex items-center justify-between">
+        <SubmissionHeaderCell
+          className="text-secondary items-start gap-x-2 [&_[data-slot=icon]]:h-5 [&_[data-slot=icon]]:w-5 [&_[data-slot=label]]:text-wrap [&_[data-slot=label]]:text-base/6 [&_[data-slot=label]]:font-medium [&_[data-slot=question-icon]]:h-6 [&_[data-slot=question-icon]]:w-6"
+          field={field}
+        />
+        {answer && !helper.isEmpty(answer.value) && (
+          <Button.Ghost
+            size="sm"
+            className="opacity-0 group-hover:opacity-100 transition-opacity print:hidden !p-1.5"
+            onClick={handleCopyAnswer}
+            title={t('Copy answer')}
+          >
+            <IconCopy className="h-4 w-4" />
+            <span className="sr-only">{t('Copy answer')}</span>
+          </Button.Ghost>
+        )}
+      </div>
       <div className="min-w-0 flex-1">
         {answer && <SubmissionCell field={field} submission={submission} answer={answer} />}
       </div>
