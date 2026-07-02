@@ -1,11 +1,14 @@
 import { FieldKindEnum, FormField } from '@heyform-inc/shared-types-enums'
-import { IconCalendar, IconPrinter } from '@tabler/icons-react'
+import { IconCalendar, IconPrinter, IconCopy } from '@tabler/icons-react'
 import { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { helper } from '@heyform-inc/utils'
+import { CURRENCY_SYMBOLS } from '@heyform-inc/answer-utils'
+import Big from 'big.js'
 
 import { formatDay, unixDate } from '@/utils'
 
-import { Button, Modal, TableRef, TableState } from '@/components'
+import { Button, Modal, TableRef, TableState, useToast } from '@/components'
 import { useModal } from '@/store'
 import { SubmissionType } from '@/types'
 
@@ -44,6 +47,7 @@ const SubmissionItem: FC<SubmissionItemProps> = ({ submission, field }) => {
 
 const SubmissionDetail: FC<SubmissionDetailProps> = () => {
   const { t, i18n } = useTranslation()
+  const toast = useToast()
   const { payload } = useModal<SubmissionDetailPayload>('SubmissionDetailModal')
 
   const fields = useMemo(
@@ -63,6 +67,118 @@ const SubmissionDetail: FC<SubmissionDetailProps> = () => {
 
   function handlePrint() {
     window.print()
+  }
+
+  function handleCopy() {
+    if (!payload?.submission || !fields) return
+
+    const submission = payload.submission
+    const lines = fields.map(field => {
+      const answer = submission.answers.find(ans => ans.id === field.id)
+      let title = field.title
+      if (Array.isArray(title)) {
+        title = title.map((item: any) => item.text || '').join('')
+      }
+
+      let answerText = ''
+      if (answer && !helper.isEmpty(answer.value)) {
+        const val = answer.value
+        switch (field.kind) {
+          case FieldKindEnum.ADDRESS:
+            if (helper.isObject(val)) {
+              answerText = [val.address1, val.address2, val.city, val.state, val.zip].filter(Boolean).join(', ')
+            }
+            break
+
+          case FieldKindEnum.DATE_RANGE:
+            if (helper.isObject(val)) {
+              answerText = [val.start, val.end].filter(Boolean).join(' - ')
+            }
+            break
+
+          case FieldKindEnum.FILE_UPLOAD:
+            if (helper.isObject(val)) {
+              const filename = val.filename || 'file'
+              const fileUrl = `${val.cdnUrlPrefix}/${val.cdnKey}`
+              answerText = `${filename} (${fileUrl})`
+            } else if (helper.isString(val)) {
+              const filename = val.split('/').pop() || 'file'
+              answerText = `${filename} (${val})`
+            }
+            break
+
+          case FieldKindEnum.FULL_NAME:
+            if (helper.isObject(val)) {
+              answerText = [val.firstName, val.lastName].filter(Boolean).join(' ')
+            }
+            break
+
+          case FieldKindEnum.INPUT_TABLE:
+            const columns = (field.properties?.tableColumns || []) as any[]
+            if (Array.isArray(val) && columns.length > 0) {
+              answerText = val.map((row: any) => {
+                if (helper.isObject(row)) {
+                  return columns.map(c => row[c.id]).join(', ')
+                }
+                return ''
+              }).filter(Boolean).join(' | ')
+            }
+            break
+
+          case FieldKindEnum.MULTIPLE_CHOICE:
+          case FieldKindEnum.PICTURE_CHOICE:
+            const choices = (field.properties?.choices || []) as any[]
+            if (helper.isObject(val)) {
+              const selected = choices.filter(c => val.value?.includes(c.id)).map(c => c.label)
+              if (val.other) {
+                selected.push(val.other)
+              }
+              answerText = selected.join(', ')
+            }
+            break
+
+          case FieldKindEnum.YES_NO:
+            const yesNoChoices = (field.properties?.choices || []) as any[]
+            const yesNoVal = helper.isObject(val) ? val.value : val
+            const selectedYesNo = yesNoChoices.find(c => c.id === yesNoVal)
+            answerText = selectedYesNo ? selectedYesNo.label : String(yesNoVal)
+            break
+
+          case FieldKindEnum.RATING:
+          case FieldKindEnum.OPINION_SCALE:
+            const total = field.properties?.total ?? (field.kind === FieldKindEnum.RATING ? 5 : 10)
+            answerText = `${val}/${total}`
+            break
+
+          case FieldKindEnum.PAYMENT:
+            if (helper.isObject(val)) {
+              const amount = val.amount || 0
+              const currencySymbol = CURRENCY_SYMBOLS[val.currency] || val.currency || '$'
+              const amountStr = currencySymbol + Big(amount).div(100).toFixed(2)
+              answerText = `${amountStr} (${val.paymentIntentId ? 'Succeeded' : 'Incomplete'})`
+            }
+            break
+
+          default:
+            answerText = String(val)
+            break
+        }
+      }
+
+      return `${title}: ${answerText || '-'}`
+    })
+
+    const textToCopy = lines.join('\n')
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => {
+        toast({
+          title: t('Copied'),
+          message: t('Submission details copied to clipboard!')
+        })
+      })
+      .catch(err => {
+        console.error('Failed to copy text: ', err)
+      })
   }
 
   return (
@@ -99,6 +215,11 @@ const SubmissionDetail: FC<SubmissionDetailProps> = () => {
           {/*>*/}
           {/*  <IconChevronDown className="h-5 w-5" />*/}
           {/*</Button.Ghost>*/}
+
+          <Button.Ghost size="sm" onClick={handleCopy}>
+            <IconCopy className="h-5 w-5" />
+            <span>{t('components.copy', 'Copy')}</span>
+          </Button.Ghost>
 
           <Button.Ghost size="sm" onClick={handlePrint}>
             <IconPrinter className="h-5 w-5" />

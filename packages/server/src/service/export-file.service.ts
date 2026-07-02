@@ -96,21 +96,34 @@ export class ExportFileService {
     switch (answer?.kind) {
       case FieldKindEnum.FILE_UPLOAD:
         if (helper.isObject(value)) {
-          result = (value.cdnUrlPrefix && value.cdnKey)
+          const fileUrl = (value.cdnUrlPrefix && value.cdnKey)
             ? `${value.cdnUrlPrefix}/${value.cdnKey}`
             : (value.url || '')
+          result = fileUrl ? `=HYPERLINK("${fileUrl}", "${(value.filename || 'View File').replace(/"/g, '""')}")` : ''
         } else if (helper.isString(value)) {
           const pathParts = value.split('/')
           const filename = pathParts.pop() || ''
           const formId = pathParts.pop() || ''
 
           if (value.startsWith('/static/upload/') && formId && filename && formId !== 'global') {
-            result = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}/view/file/${formId}/${filename}`
+            const fileUrl = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}/view/file/${formId}/${filename}`
+            result = `=HYPERLINK("${fileUrl}", "${filename.replace(/"/g, '""')}")`
           } else {
             const url = value.startsWith('/') ? value : `/${value}`
-            result = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}${url}`
+            const fileUrl = `${APP_HOMEPAGE_URL.replace(/\/$/, '')}${url}`
+            result = `=HYPERLINK("${fileUrl}", "${filename.replace(/"/g, '""')}")`
           }
         }
+        break
+
+      case FieldKindEnum.URL:
+        const urlVal = parsePlainAnswer(answer)
+        result = urlVal ? `=HYPERLINK("${urlVal}", "${urlVal.replace(/"/g, '""')}")` : ''
+        break
+
+      case FieldKindEnum.SIGNATURE:
+        const sigVal = parsePlainAnswer(answer)
+        result = sigVal ? `=HYPERLINK("${sigVal}", "View Signature")` : ''
         break
 
       default:
