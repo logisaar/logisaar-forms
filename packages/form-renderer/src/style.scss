@@ -994,7 +994,7 @@ button.button-icon-only {
   }
 
   .heyform-radio-group {
-    @apply flex flex-wrap items-center md:space-x-2;
+    @apply flex flex-wrap items-center gap-y-2 md:space-x-2 md:gap-y-0;
   }
 
   .heyform-radio {
@@ -1002,11 +1002,13 @@ button.button-icon-only {
   }
 
   .heyform-radio-container {
-    @apply h-full;
+    @apply h-full p-0 flex items-center justify-center;
   }
 
   .heyform-radio-label {
-    text-align: center;
+    @apply m-0 p-0 text-center flex-1;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   .heyform-radio-selected {
