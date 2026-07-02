@@ -73,7 +73,7 @@ export const PhoneNumber: FC<BlockProps> = ({ field, ...restProps }) => {
                       return resolve()
                     }
 
-                    if (isValidPhoneNumber(value)) {
+                    if (helper.isString(value) && isValidPhoneNumber(value)) {
                       resolve()
                     } else {
                       reject(rule.message)
