@@ -94,6 +94,7 @@ export interface IState {
   variables: AnyMap
   values: AnyMap
   autoSave?: boolean
+  maxUploadSizeMb?: number
   settings?: FormSettings
   percentage: number
   questionCount: number

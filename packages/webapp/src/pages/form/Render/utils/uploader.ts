@@ -61,10 +61,19 @@ export class Uploader {
 
   async uploadFile(field: UploaderField): Promise<Record<string, FileUploadValue | string>> {
     const file = field.value as File
+    const fullField = flattenFields(this.form.fields).find(f => f.id === field.id)
 
-    const maxMb = (this.form as any).maxUploadSizeMb
+    const maxMb = fullField?.properties?.maxUploadSizeMb || (this.form as any).maxUploadSizeMb || 10
     if (maxMb && file && file.size > maxMb * 1024 * 1024) {
       throw new Error(`File exceeds the ${maxMb}MB limit set for this form`)
+    }
+
+    const allowOnlyImages = fullField?.properties?.allowOnlyImages
+    if (allowOnlyImages && file) {
+      const allowedImageMimes = ['image/jpeg', 'image/png', 'image/bmp', 'image/gif']
+      if (!allowedImageMimes.includes(file.type)) {
+        throw new Error('Only image files are allowed for this question')
+      }
     }
 
     const { url } = await UploadService.upload(file, {

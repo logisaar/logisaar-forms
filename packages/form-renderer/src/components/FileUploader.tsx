@@ -5,6 +5,8 @@ import { useState } from 'react'
 
 import { isFile, stopPropagation, useTranslation } from '../utils'
 import { formatBytes, parseBytes } from '@heyform-inc/utils'
+import { useStore } from '../store'
+import { FormField } from '@heyform-inc/shared-types-enums'
 
 import { ACCEPTED_FILE_MIMES, MAX_FILE_SIZE } from '../consts'
 import { IComponentProps } from '../typings'
@@ -12,10 +14,20 @@ import { IComponentProps } from '../typings'
 interface FileUploaderProps extends Omit<IComponentProps, 'onChange'> {
   value?: File
   onChange?: (file: File) => void
+  field?: FormField
 }
 
-export const FileUploader: FC<FileUploaderProps> = ({ value, onChange }) => {
+export const FileUploader: FC<FileUploaderProps> = ({ value, onChange, field }) => {
   const { t } = useTranslation()
+  const { state } = useStore()
+
+  const maxUploadSizeMb = field?.properties?.maxUploadSizeMb || state.maxUploadSizeMb || 10
+  const maxBytes = maxUploadSizeMb * 1024 * 1024
+  const maxFileSizeStr = `${maxUploadSizeMb}MB`
+
+  const allowedMimes = field?.properties?.allowOnlyImages
+    ? ['image/jpeg', 'image/png', 'image/bmp', 'image/gif']
+    : ACCEPTED_FILE_MIMES
 
   const [error, setError] = useState<string>()
   const [fileInputRef, setFileInputRef] = useState<any>()
@@ -27,12 +39,12 @@ export const FileUploader: FC<FileUploaderProps> = ({ value, onChange }) => {
     let newValue: any = file
 
     if (file) {
-      if (!ACCEPTED_FILE_MIMES.includes(file.type)) {
+      if (!allowedMimes.includes(file.type)) {
         newValue = undefined
         setError(t('File type is not supported'))
-      } else if (file.size > parseBytes(MAX_FILE_SIZE)!) {
+      } else if (file.size > maxBytes) {
         newValue = undefined
-        setError(t("File size can't exceed {{size}}", { size: MAX_FILE_SIZE }))
+        setError(t("File size can't exceed {{size}}", { size: maxFileSizeStr }))
       } else if (file.size === 0) {
         newValue = undefined
         setError(t('Files should not be empty'))
@@ -113,7 +125,7 @@ export const FileUploader: FC<FileUploaderProps> = ({ value, onChange }) => {
               <div className="heyform-validation-error mt-1">{error}</div>
             ) : (
               <div className="heyform-upload-size-limit">
-                {t('Size limit')}: {MAX_FILE_SIZE}
+                {t('Size limit')}: {maxFileSizeStr}
               </div>
             )}
           </>
@@ -123,7 +135,7 @@ export const FileUploader: FC<FileUploaderProps> = ({ value, onChange }) => {
         type="file"
         ref={setFileInputRef}
         style={{ display: 'none' }}
-        accept={ACCEPTED_FILE_MIMES.join(',')}
+        accept={allowedMimes.join(',')}
         onClick={stopPropagation}
         onChange={handleInputChange}
       />

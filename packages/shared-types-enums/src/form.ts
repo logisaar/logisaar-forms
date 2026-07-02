@@ -162,6 +162,10 @@ export interface Property {
   redirectUrl?: string
   redirectOnCompletion?: boolean
   redirectDelay?: number
+
+  // FileUpload
+  maxUploadSizeMb?: number
+  allowOnlyImages?: boolean
 }
 
 export interface Validation {

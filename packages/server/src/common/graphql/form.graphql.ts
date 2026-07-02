@@ -189,6 +189,14 @@ class SharedPropertyInput {
   @Field({ nullable: true })
   @IsOptional()
   redirectDelay?: number
+
+  @Field({ nullable: true })
+  @IsOptional()
+  maxUploadSizeMb?: number
+
+  @Field({ nullable: true })
+  @IsOptional()
+  allowOnlyImages?: boolean
 }
 
 @InputType()
@@ -883,6 +891,12 @@ export class PropertyType {
 
   @Field({ nullable: true })
   score?: number
+
+  @Field({ nullable: true })
+  maxUploadSizeMb?: number
+
+  @Field({ nullable: true })
+  allowOnlyImages?: boolean
 }
 
 @ObjectType()

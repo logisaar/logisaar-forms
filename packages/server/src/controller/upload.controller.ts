@@ -31,6 +31,19 @@ function getUploadContextValue(
   const value = req.get?.(headerName) || req.query?.[key]
   return Array.isArray(value) ? value[0] : value
 }
+function findField(fields: any[], id: string): any {
+  if (!fields) return null
+  for (const field of fields) {
+    if (field.id === id) {
+      return field
+    }
+    if (field.properties?.fields) {
+      const found = findField(field.properties.fields, id)
+      if (found) return found
+    }
+  }
+  return null
+}
 
 @Controller()
 export class UploadController {
@@ -62,6 +75,7 @@ export class UploadController {
     await this.assertUploadAllowed(req)
 
     const formId = getUploadContextValue(req, 'formId')
+    const fieldId = getUploadContextValue(req, 'fieldId')
     let provider: 'vps' | 's3' = 'vps'
     let maxUploadSizeMb = 5
 
@@ -70,6 +84,20 @@ export class UploadController {
       if (form) {
         provider = (form.storageProvider || 'vps') as 'vps' | 's3'
         maxUploadSizeMb = form.maxUploadSizeMb || 5
+
+        if (helper.isValid(fieldId)) {
+          const field = findField(form.fields, fieldId)
+          if (field?.properties?.maxUploadSizeMb) {
+            maxUploadSizeMb = field.properties.maxUploadSizeMb
+          }
+          if (field?.properties?.allowOnlyImages) {
+            const mimeType = String(file.mimetype || '').toLowerCase()
+            const allowedImageMimes = ['image/jpeg', 'image/png', 'image/bmp', 'image/gif']
+            if (!allowedImageMimes.includes(mimeType)) {
+              throw new BadRequestException('Only image files are allowed for this question')
+            }
+          }
+        }
       }
     }
 

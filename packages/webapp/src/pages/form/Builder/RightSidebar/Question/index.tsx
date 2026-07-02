@@ -14,10 +14,14 @@ import RequiredSettings, { RequiredSettingsProps } from './Required'
 import StatementSettings from './Statement'
 import ThankYouSettings from './ThankYou'
 import TypeSwitcher from './TypeSwitcher'
+import FileUploadSettings from './FileUpload'
 
 const Settings = ({ field }: RequiredSettingsProps) => {
   const children = useMemo(() => {
     switch (field.kind) {
+      case FieldKindEnum.FILE_UPLOAD:
+        return <FileUploadSettings field={field} />
+
       case FieldKindEnum.DATE:
       case FieldKindEnum.DATE_RANGE:
         return <DateSettings field={field} />

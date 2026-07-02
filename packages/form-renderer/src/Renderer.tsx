@@ -93,6 +93,7 @@ function initStore(
     formId: form.id,
     scrollIndex: 0,
     scrollTo: 'next',
+    maxUploadSizeMb: form.maxUploadSizeMb,
     settings: form.settings,
     autoSave,
     locale,

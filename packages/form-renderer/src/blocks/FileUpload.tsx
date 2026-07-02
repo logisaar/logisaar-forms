@@ -35,7 +35,7 @@ export const FileUpload: FC<BlockProps> = ({ field, ...restProps }) => {
             }
           ]}
         >
-          <FileUploader />
+          <FileUploader field={field} />
         </FormField>
       </Form>
     </Block>
