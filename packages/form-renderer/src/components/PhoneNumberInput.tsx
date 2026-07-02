@@ -47,7 +47,7 @@ export const PhoneNumberInput: FC<PhoneNumberInputProps> = ({
   function handleCodeChange(newCountryCode: any) {
     setCountryCode(newCountryCode)
 
-    if (helper.isValid(value) && isValidPhoneNumber(value!, newCountryCode)) {
+    if (helper.isValid(value) && helper.isString(value) && isValidPhoneNumber(value!, newCountryCode)) {
       const newValue = format(value!, newCountryCode)
       setValue(newValue)
 
@@ -95,8 +95,11 @@ export const PhoneNumberInput: FC<PhoneNumberInputProps> = ({
   const handleInputChangeCallback = useCallback(handleInputChange, [countryCode, value])
 
   useEffect(() => {
-    if (isValidPhoneNumber(rawValue)) {
-      const parsed = parsePhoneNumber(rawValue, countryCode as any)
+    // rawValue may be an object if the WhatsApp phone answer is stored;
+    // guard to only process string values
+    const phoneStr = helper.isString(rawValue) ? rawValue : ''
+    if (phoneStr && isValidPhoneNumber(phoneStr)) {
+      const parsed = parsePhoneNumber(phoneStr, countryCode as any)
 
       if (parsed) {
         const { country, nationalNumber } = parsed

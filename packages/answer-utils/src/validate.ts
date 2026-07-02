@@ -182,6 +182,32 @@ function validateNumber(rule: FieldsToValidateRules, value: AnswerValue) {
 }
 
 function validatePhoneNumber(rule: FieldsToValidateRules, value: AnswerValue) {
+  // If value is an object (WhatsApp-enabled phone answer), extract and validate individual strings
+  if (helper.isObject(value)) {
+    const phoneStr = (value as any).phone
+    if (!isMobilePhone(phoneStr)) {
+      throw new ValidateError({
+        id: rule.id,
+        kind: rule.kind,
+        title: rule.title,
+        message: 'Please enter a valid mobile phone number'
+      })
+    }
+    // If whatsapp number is different, validate it too
+    if ((value as any).isWhatsappSame === false) {
+      const wpStr = (value as any).whatsapp
+      if (!isMobilePhone(wpStr)) {
+        throw new ValidateError({
+          id: rule.id,
+          kind: rule.kind,
+          title: rule.title,
+          message: 'Please enter a valid WhatsApp number'
+        })
+      }
+    }
+    return
+  }
+
   if (!isMobilePhone(value)) {
     throw new ValidateError({
       id: rule.id,
