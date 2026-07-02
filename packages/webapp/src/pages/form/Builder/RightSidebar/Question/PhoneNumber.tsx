@@ -50,7 +50,7 @@ export default function PhoneNumber({ field }: RequiredSettingsProps) {
           {t('Ask for WhatsApp number')}
         </label>
         <Switch
-          value={field.properties?.allowWhatsapp}
+          value={(field.properties as any)?.allowWhatsapp}
           onChange={value => handleChange('allowWhatsapp', value)}
         />
       </div>
