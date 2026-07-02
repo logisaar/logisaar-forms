@@ -383,17 +383,83 @@ const SignatureItem: FC<SubmissionCellProps> = ({ answer, field }) => {
   return <Image src={answer.value} width={80} height={40} />
 }
 
+const LegalTermsItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) => {
+  const { t } = useTranslation()
+
+  if (answer.kind !== field.kind) {
+    return null
+  }
+
+  const isAccepted = answer.value === true || answer.value === 'true'
+
+  if (isTableCell) {
+    return (
+      <Badge color={isAccepted ? 'green' : 'red'}>
+        {isAccepted ? t('Accepted') : t('Not accepted')}
+      </Badge>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <Badge color={isAccepted ? 'green' : 'red'}>
+        {isAccepted ? t('Accepted') : t('Not accepted')}
+      </Badge>
+    </div>
+  )
+}
+
 const PhoneNumberItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) => {
+  const { t } = useTranslation()
+
   if (answer.kind !== field.kind) {
     return null
   }
 
   const val = answer.value
   if (helper.isObject(val)) {
-    const text = val.isWhatsappSame
-      ? `${val.phone} (WhatsApp same)`
-      : `${val.phone} (WhatsApp: ${val.whatsapp || '-'})`
-    return <div className={cn({ truncate: isTableCell })}>{text}</div>
+    if (isTableCell) {
+      const text = val.isWhatsappSame
+        ? `${val.phone} (WhatsApp same)`
+        : `${val.phone} (WhatsApp: ${val.whatsapp || '-'})`
+      return <div className="truncate">{text}</div>
+    }
+
+    const value = [
+      val.phone,
+      val.isWhatsappSame ? t('Same as phone number') : val.whatsapp
+    ]
+
+    const labels = [
+      t('Phone number'),
+      t('WhatsApp number')
+    ]
+
+    const result = value
+      .map((row, index) => {
+        if (helper.isValid(row)) {
+          return {
+            value: row,
+            label: labels[index]
+          }
+        }
+      })
+      .filter(Boolean) as AnyMap[]
+
+    return (
+      <dl className="grid grid-cols-1 text-base/6 sm:grid-cols-[min(50%,theme(spacing.80))_auto] sm:text-sm/6">
+        {result.map((row, index) => (
+          <Fragment key={index}>
+            <dt className="border-accent-light text-secondary sm:border-accent-light col-start-1 border-t pt-3 first:border-none sm:border-t sm:py-3">
+              {row.label}
+            </dt>
+            <dd className="sm:[&:nth-child(2)]:border-none text-primary sm:border-accent-light pb-3 pt-1 sm:border-t sm:py-3">
+              {row.value}
+            </dd>
+          </Fragment>
+        ))}
+      </dl>
+    )
   }
 
   return <div className={cn({ truncate: isTableCell })}>{val}</div>
@@ -470,6 +536,9 @@ export default function SubmissionCell(props: SubmissionCellProps) {
 
     case FieldKindEnum.PHONE_NUMBER:
       return <PhoneNumberItem {...props} />
+
+    case FieldKindEnum.LEGAL_TERMS:
+      return <LegalTermsItem {...props} />
 
     case FieldKindEnum.ADDRESS:
       return <AddressItem {...props} />

@@ -136,6 +136,10 @@ export class ExportFileService {
         }
         break
 
+      case FieldKindEnum.LEGAL_TERMS:
+        result = value === true || value === 'true' ? 'Accepted' : 'Not accepted'
+        break
+
       default:
         result = parsePlainAnswer(answer)
         break

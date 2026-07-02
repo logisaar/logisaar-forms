@@ -117,6 +117,9 @@ function getPlainAnswerText(field: FormField, answer: any): string {
       }
       return String(val)
 
+    case FieldKindEnum.LEGAL_TERMS:
+      return val === true || val === 'true' ? 'Accepted' : 'Not accepted'
+
     default:
       return String(val)
   }
@@ -294,6 +297,10 @@ const SubmissionDetail: FC<SubmissionDetailProps> = () => {
             } else {
               answerText = String(val)
             }
+            break
+
+          case FieldKindEnum.LEGAL_TERMS:
+            answerText = val === true || val === 'true' ? 'Accepted' : 'Not accepted'
             break
 
           default:

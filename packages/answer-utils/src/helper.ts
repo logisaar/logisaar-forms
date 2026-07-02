@@ -10,6 +10,19 @@ export function isNumber(arg: any): boolean {
 }
 
 export function isMobilePhone(arg: any): boolean {
+  if (helper.isObject(arg)) {
+    const phone = arg.phone
+    const isPhoneValid = phone && isMobilePhone(phone)
+    if (arg.isWhatsappSame) {
+      return !!isPhoneValid
+    }
+    const whatsapp = arg.whatsapp
+    const isWhatsappValid = whatsapp && isMobilePhone(whatsapp)
+    return !!isPhoneValid && !!isWhatsappValid
+  }
+  if (!helper.isString(arg)) {
+    return false
+  }
   const phoneNumber = parsePhoneNumberFromString(arg)
   return !!phoneNumber?.isValid()
 }
