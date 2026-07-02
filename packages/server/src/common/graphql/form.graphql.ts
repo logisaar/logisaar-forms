@@ -197,6 +197,10 @@ class SharedPropertyInput {
   @Field({ nullable: true })
   @IsOptional()
   allowOnlyImages?: boolean
+
+  @Field({ nullable: true })
+  @IsOptional()
+  allowWhatsapp?: boolean
 }
 
 @InputType()
