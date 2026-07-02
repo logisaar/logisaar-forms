@@ -126,6 +126,16 @@ export class ExportFileService {
         result = sigVal ? `=HYPERLINK("${sigVal}", "View Signature")` : ''
         break
 
+      case FieldKindEnum.PHONE_NUMBER:
+        if (helper.isObject(value)) {
+          result = value.isWhatsappSame
+            ? `${value.phone} (WhatsApp same)`
+            : `${value.phone} (WhatsApp: ${value.whatsapp || '-'})`
+        } else {
+          result = parsePlainAnswer(answer)
+        }
+        break
+
       default:
         result = parsePlainAnswer(answer)
         break

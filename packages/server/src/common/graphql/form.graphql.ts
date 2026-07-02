@@ -577,7 +577,6 @@ export class UpdateFormInput extends FormDetailInput {
   metaDescription?: string
 
   @Field({ nullable: true })
-  @IsUrl()
   @IsOptional()
   metaOGImageUrl?: string
 

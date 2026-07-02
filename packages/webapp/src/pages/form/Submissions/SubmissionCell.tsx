@@ -383,6 +383,22 @@ const SignatureItem: FC<SubmissionCellProps> = ({ answer, field }) => {
   return <Image src={answer.value} width={80} height={40} />
 }
 
+const PhoneNumberItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) => {
+  if (answer.kind !== field.kind) {
+    return null
+  }
+
+  const val = answer.value
+  if (helper.isObject(val)) {
+    const text = val.isWhatsappSame
+      ? `${val.phone} (WhatsApp same)`
+      : `${val.phone} (WhatsApp: ${val.whatsapp || '-'})`
+    return <div className={cn({ truncate: isTableCell })}>{text}</div>
+  }
+
+  return <div className={cn({ truncate: isTableCell })}>{val}</div>
+}
+
 const TextItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) => {
   if (
     answer.kind !== field.kind ||
@@ -451,6 +467,9 @@ export default function SubmissionCell(props: SubmissionCellProps) {
 
     case FieldKindEnum.SIGNATURE:
       return <SignatureItem {...props} />
+
+    case FieldKindEnum.PHONE_NUMBER:
+      return <PhoneNumberItem {...props} />
 
     case FieldKindEnum.ADDRESS:
       return <AddressItem {...props} />

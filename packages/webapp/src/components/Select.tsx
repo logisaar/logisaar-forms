@@ -145,7 +145,7 @@ const NativeSelect: FC<NativeSelectProps> = ({
       {...restProps}
     >
       {options.map(row => (
-        <option key={row.value} value={row.value} disabled={row.disabled}>
+        <option key={row.value} value={row.value} disabled={row.disabled} className="text-neutral-900 bg-white">
           {row.label}
         </option>
       ))}

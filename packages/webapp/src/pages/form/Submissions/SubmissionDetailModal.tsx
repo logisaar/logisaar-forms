@@ -109,6 +109,14 @@ function getPlainAnswerText(field: FormField, answer: any): string {
       }
       break
 
+    case FieldKindEnum.PHONE_NUMBER:
+      if (helper.isObject(val)) {
+        return val.isWhatsappSame
+          ? `${val.phone} (WhatsApp same)`
+          : `${val.phone} (WhatsApp: ${val.whatsapp || '-'})`
+      }
+      return String(val)
+
     default:
       return String(val)
   }
@@ -275,6 +283,16 @@ const SubmissionDetail: FC<SubmissionDetailProps> = () => {
               const currencySymbol = CURRENCY_SYMBOLS[val.currency] || val.currency || '$'
               const amountStr = currencySymbol + Big(amount).div(100).toFixed(2)
               answerText = `${amountStr} (${val.paymentIntentId ? 'Succeeded' : 'Incomplete'})`
+            }
+            break
+
+          case FieldKindEnum.PHONE_NUMBER:
+            if (helper.isObject(val)) {
+              answerText = val.isWhatsappSame
+                ? `${val.phone} (WhatsApp same)`
+                : `${val.phone} (WhatsApp: ${val.whatsapp || '-'})`
+            } else {
+              answerText = String(val)
             }
             break
 
