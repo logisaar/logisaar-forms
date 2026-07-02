@@ -2,7 +2,7 @@ import type { PhoneNumber } from 'libphonenumber-js'
 import {
   formatIncompletePhoneNumber,
   isValidPhoneNumber,
-  parsePhoneNumber
+  parsePhoneNumberWithError
 } from 'libphonenumber-js'
 import type { FC } from 'react'
 import { startTransition, useCallback, useEffect, useMemo, useState } from 'react'
@@ -26,7 +26,7 @@ function format(input: string, countryCode: string) {
 
 function parse(input: string, countryCode: string): PhoneNumber | undefined {
   try {
-    return parsePhoneNumber(input, countryCode as any)
+    return parsePhoneNumberWithError(input, countryCode as any)
   } catch (_) {}
 }
 
@@ -99,7 +99,7 @@ export const PhoneNumberInput: FC<PhoneNumberInputProps> = ({
     // guard to only process string values
     const phoneStr = helper.isString(rawValue) ? rawValue : ''
     if (phoneStr && isValidPhoneNumber(phoneStr)) {
-      const parsed = parsePhoneNumber(phoneStr, countryCode as any)
+      const parsed = parsePhoneNumberWithError(phoneStr, countryCode as any)
 
       if (parsed) {
         const { country, nationalNumber } = parsed
