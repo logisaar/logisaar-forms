@@ -1,5 +1,4 @@
 import { startTransition, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import { Input, Select } from '@/components'
 import { useFormStore } from '@/store'
@@ -8,7 +7,6 @@ import { useStoreContext } from '../../store'
 import { RequiredSettingsProps } from './Required'
 
 export default function FileUploadSettings({ field }: RequiredSettingsProps) {
-  const { t } = useTranslation()
   const { dispatch } = useStoreContext()
   const { form } = useFormStore()
 

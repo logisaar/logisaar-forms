@@ -4,11 +4,11 @@ import type { FC } from 'react'
 import { useState } from 'react'
 
 import { isFile, stopPropagation, useTranslation } from '../utils'
-import { formatBytes, parseBytes } from '@heyform-inc/utils'
+import { formatBytes } from '@heyform-inc/utils'
 import { useStore } from '../store'
 import { FormField } from '@heyform-inc/shared-types-enums'
 
-import { ACCEPTED_FILE_MIMES, MAX_FILE_SIZE } from '../consts'
+import { ACCEPTED_FILE_MIMES } from '../consts'
 import { IComponentProps } from '../typings'
 
 interface FileUploaderProps extends Omit<IComponentProps, 'onChange'> {
