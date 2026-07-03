@@ -537,7 +537,9 @@ button.button-icon-only {
 // ----------------------------------------------------------------------------
 // Blocks
 .heyform-render-root {
-  @apply h-screen w-screen overflow-hidden;
+  @apply w-screen overflow-hidden;
+  height: 100vh;
+  height: 100dvh;
 }
 
 .heyform-root,
