@@ -251,7 +251,7 @@ export const Blocks = () => {
 
   function handleResize() {
     if (window.heyform.device.android) {
-      document.activeElement?.scrollIntoView()
+      document.activeElement?.scrollIntoView({ block: 'center', inline: 'nearest' })
     }
   }
 

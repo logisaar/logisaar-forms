@@ -827,6 +827,10 @@ button.button-icon-only {
 
   img {
     @apply block h-full w-full rounded-lg object-cover object-center;
+
+    @media (max-width: 800px) {
+      object-fit: contain !important;
+    }
   }
 }
 
@@ -856,6 +860,10 @@ button.button-icon-only {
 
   img {
     @apply h-full w-full rounded-2xl object-cover;
+
+    @media (max-width: 800px) {
+      object-fit: contain !important;
+    }
 
     @media (min-width: 800px) {
       @apply h-auto w-auto max-w-full rounded-2xl;
