@@ -25,9 +25,10 @@ export class FormController {
         let metaOGImageUrl = form.settings?.metaOGImageUrl
         if (metaOGImageUrl) {
           if (!metaOGImageUrl.startsWith('http://') && !metaOGImageUrl.startsWith('https://')) {
+            // req.protocol is correctly set by Express when 'trust proxy' is enabled
+            const protocol = req.protocol || 'https'
             const host = req.headers.host || 'forms.logisaar.in'
-            const protocol = req.headers['x-forwarded-proto'] || 'https'
-            
+
             // Normalize path by stripping initial slash
             if (metaOGImageUrl.startsWith('/')) {
               metaOGImageUrl = metaOGImageUrl.substring(1)
@@ -38,8 +39,8 @@ export class FormController {
           }
         } else {
           // If no custom OG image is uploaded, fall back to og.png
+          const protocol = req.protocol || 'https'
           const host = req.headers.host || 'forms.logisaar.in'
-          const protocol = req.headers['x-forwarded-proto'] || 'https'
           ogImage = `${protocol}://${host}/static/og.png`
         }
       }
