@@ -22,8 +22,20 @@ export class FormController {
     try {
       form = await this.formService.findById(formId)
       if (form) {
-        if (form.settings?.metaOGImageUrl) {
-          ogImage = form.settings.metaOGImageUrl
+        let metaOGImageUrl = form.settings?.metaOGImageUrl
+        if (metaOGImageUrl) {
+          if (!metaOGImageUrl.startsWith('http://') && !metaOGImageUrl.startsWith('https://')) {
+            const host = req.headers.host || 'forms.logisaar.in'
+            const protocol = req.headers['x-forwarded-proto'] || 'https'
+            
+            // Normalize path by stripping initial slash
+            if (metaOGImageUrl.startsWith('/')) {
+              metaOGImageUrl = metaOGImageUrl.substring(1)
+            }
+            ogImage = `${protocol}://${host}/${metaOGImageUrl}`
+          } else {
+            ogImage = metaOGImageUrl
+          }
         } else {
           // If no custom OG image is uploaded, fall back to apple-touch-icon.png
           const host = req.headers.host || 'forms.logisaar.in'
