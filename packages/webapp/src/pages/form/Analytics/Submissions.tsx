@@ -88,8 +88,17 @@ const AnswerValue: FC<{ answer: AnyMap }> = ({ answer }) => {
     case FieldKindEnum.SIGNATURE:
       return <div>{t('form.builder.question.signature')}</div>
 
-    default:
+    case FieldKindEnum.PHONE_NUMBER:
       return answer.value
+        ? answer.value.isWhatsappSame
+          ? `${answer.value.phone} (WhatsApp same)`
+          : `${answer.value.phone}${answer.value.whatsapp ? ` (WhatsApp: ${answer.value.whatsapp})` : ''}`
+        : null
+
+    default:
+      return typeof answer.value === 'object' && answer.value !== null
+        ? JSON.stringify(answer.value)
+        : answer.value
   }
 }
 
