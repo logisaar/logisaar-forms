@@ -130,6 +130,27 @@ export default function LinkSettings() {
                     className="aspect-[1200/630] w-full rounded-lg"
                   />
 
+                  <div className="absolute inset-0 text-black pointer-events-none">
+                    <div className="mx-[28px] flex h-[130px] flex-col justify-center gap-2">
+                      <div
+                        className="text-[22px] font-bold leading-[26px] drop-shadow-[0_1.2px_1.2px_rgba(255,255,255,0.8)]"
+                        style={{
+                          lineClamp: 2
+                        }}
+                      >
+                        {title}
+                      </div>
+                      <div
+                        className="text-sm leading-5 opacity-85 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
+                        style={{
+                          lineClamp: 2
+                        }}
+                      >
+                        {description}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-100 group-hover:opacity-100">
                     <div className="bg-foreground flex items-center gap-1 rounded-lg px-1.5 py-1">
                       <Tooltip label={t('components.change')}>
