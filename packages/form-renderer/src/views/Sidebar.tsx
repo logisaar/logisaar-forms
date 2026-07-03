@@ -1,3 +1,4 @@
+import { IconCircleCheck } from '@tabler/icons-react'
 import clsx from 'clsx'
 import type { FC } from 'react'
 import { useEffect, useMemo, useState } from 'react'
@@ -18,9 +19,27 @@ interface QuestionProps {
 }
 
 const Question: FC<QuestionProps> = ({ field, selectedId, onClick }) => {
+  const { state } = useStore()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const isSelected = useMemo(() => selectedId === field.id, [selectedId, field.id])
   const isGroup = useMemo(() => helper.isValidArray(field.children), [field.children])
+
+  const isFilled = useMemo(() => {
+    const value = state.values[field.id]
+    if (!helper.isValid(value)) {
+      return false
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      return Object.values(value).some(val => helper.isValid(val))
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0
+    }
+
+    return true
+  }, [state.values, field.id])
 
   function handleClick() {
     onClick(field.id)
@@ -40,23 +59,31 @@ const Question: FC<QuestionProps> = ({ field, selectedId, onClick }) => {
         'heyform-sidebar-question-collapsed': isCollapsed
       })}
     >
-      <div className="heyform-sidebar-question-root">
-        <div className="heyform-sidebar-question-toggle-collapse" onClick={handleToggleCollapse}>
-          {isGroup && (
-            <CollapseIcon
-              className={clsx({
-                '-rotate-90 transform': isCollapsed
-              })}
-            />
-          )}
+      <div className="heyform-sidebar-question-root flex justify-between items-center w-full">
+        <div className="flex items-center flex-1 min-w-0">
+          <div className="heyform-sidebar-question-toggle-collapse" onClick={handleToggleCollapse}>
+            {isGroup && (
+              <CollapseIcon
+                className={clsx({
+                  '-rotate-90 transform': isCollapsed
+                })}
+              />
+            )}
+          </div>
+          <div
+            id={`heyform-sidebar-${field.id}`}
+            className="heyform-sidebar-question-title truncate"
+            onClick={handleClick}
+          >
+            {field.title}
+          </div>
         </div>
-        <div
-          id={`heyform-sidebar-${field.id}`}
-          className="heyform-sidebar-question-title"
-          onClick={handleClick}
-        >
-          {field.title}
-        </div>
+
+        {isFilled && !isGroup && (
+          <div className="heyform-sidebar-question-status pl-2 flex-none flex items-center">
+            <IconCircleCheck size={18} color="#1eff00" />
+          </div>
+        )}
       </div>
 
       {isGroup && (
