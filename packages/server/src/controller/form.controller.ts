@@ -37,10 +37,10 @@ export class FormController {
             ogImage = metaOGImageUrl
           }
         } else {
-          // If no custom OG image is uploaded, fall back to apple-touch-icon.png
+          // If no custom OG image is uploaded, fall back to og.png
           const host = req.headers.host || 'forms.logisaar.in'
           const protocol = req.headers['x-forwarded-proto'] || 'https'
-          ogImage = `${protocol}://${host}/static/apple-touch-icon.png`
+          ogImage = `${protocol}://${host}/static/og.png`
         }
       }
     } catch (err) {
